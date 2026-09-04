@@ -2,18 +2,6 @@
 
 AI-powered system for detecting anomalies, identifying project risks, and monitoring MPLADS works.
 
-## Smart India Hackathon
-
-**Problem Statement ID:** SIH26102
-
-**Problem Statement:** Development of an AI-powered system to detect anomalies, fraud, and inefficiencies in MPLAD Scheme implementation regd.
-
-**Theme:** Smart Automation
-
-**Category:** Software
-
-**Team:** The DataMiners
-
 ## Project Overview
 
 This project provides a work-level monitoring system for MPLADS works by integrating sanctioned works, completed works, and expenditure data.
@@ -80,3 +68,33 @@ MPLADS-AI-Monitoring/
 ├── MPLADS_dashboard_data.csv
 ├── SIH26102_ds.ipynb
 └── README.md
+```
+
+## Run Locally
+
+Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the Streamlit application:
+
+```bash
+streamlit run app.py
+```
+
+## Live Application
+
+[Open the MPLADS AI Monitoring Dashboard](https://mplads-ai-monitoring-rtfoeapwyogljdjkhzvvez.streamlit.app/)
+
+## Limitations
+
+- The system does not use verified fraud labels.
+- AI anomalies are not confirmed fraud cases.
+- Results depend on the quality and completeness of the available data.
+- The current application works with the available dataset snapshot and is not connected to a real-time government data feed.
+
+## Team
+
+**The DataMiners**
