@@ -7,8 +7,7 @@ import altair as alt
 # LOAD DATA
 # ============================================================
 
-data = pd.read_csv("data/csv/MPLADS_dashboard_data.csv")
-
+data = pd.read_csv("MPLADS_dashboard_data.csv")
 
 # ============================================================
 # DASHBOARD TITLE
