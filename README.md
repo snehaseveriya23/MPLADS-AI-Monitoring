@@ -86,7 +86,7 @@ streamlit run app.py
 
 ## Live Application
 
-[Open the MPLADS AI Monitoring Dashboard](https://mplads-ai-monitoring-rtfoeapwyogljdjkhzvvez.streamlit.app/)
+[Open the MPLADS AI Monitoring Dashboard](https://mplads-ai-monitoring-prototype.lovable.app/)
 
 ## Limitations
 
