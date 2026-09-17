@@ -2,8 +2,12 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
 from mplads_pipeline import run_mplads_pipeline
+
+
+DATASET_PATH = Path(__file__).resolve().parent / "MPLADS_final_risk_dataset.csv"
 
 
 app = FastAPI(
@@ -203,7 +207,7 @@ def prepare_dashboard_data():
         return _cached_data
 
     try:
-        data = pd.read_csv("MPLADS_final_risk_dataset.csv")
+        data = pd.read_csv(DATASET_PATH)
 
         if data is None or data.empty:
             raise ValueError("MPLADS final risk dataset is empty.")
