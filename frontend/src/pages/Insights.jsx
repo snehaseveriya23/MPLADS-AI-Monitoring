@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import parliamentBackground from '../assets/parliament-hero.png';
 
 const API_BASE = 'https://mplads-ai-monitoring-g3m7.onrender.com';
 
@@ -661,6 +662,8 @@ const Insights = () => {
         .insights-page {
           min-height: calc(100vh - 72px);
           background:
+            linear-gradient(rgba(3, 11, 22, 0.78), rgba(3, 11, 22, 0.84)),
+            url('${parliamentBackground}') center / cover fixed,
             radial-gradient(circle at 15% 10%, rgba(22, 91, 145, 0.14), transparent 30%),
             radial-gradient(circle at 85% 25%, rgba(20, 74, 115, 0.10), transparent 28%),
             #030b16;

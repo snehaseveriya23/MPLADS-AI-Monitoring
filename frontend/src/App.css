@@ -459,6 +459,8 @@
   min-height: 100svh;
   padding: 120px 28px 64px;
   background:
+    linear-gradient(rgba(4, 11, 22, 0.78), rgba(4, 11, 22, 0.84)),
+    url('./assets/parliament-hero.png') center / cover fixed,
     radial-gradient(circle at 20% 0%, rgba(78, 163, 255, 0.14), transparent 36%),
     var(--navy-deep);
   display: grid;
