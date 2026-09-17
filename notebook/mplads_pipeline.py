@@ -15,17 +15,17 @@ def run_mplads_pipeline():
 
     # Load raw MPLADS datasets
     sanctioned = pd.read_csv(
-        "../data/csv/Works Sanctioned.csv",
+        "../data/Works Sanctioned.csv",
         skiprows=1
     )
 
     completed = pd.read_csv(
-        "../data/csv/Works Completed.csv",
+        "../data/Works Completed.csv",
         skiprows=1
     )
 
     expenditure = pd.read_csv(
-        "../data/csv/Expenditure on Completed and On-going Works as on Date.csv",
+        "../data/Expenditure on Completed and On-going Works as on Date.csv",
         skiprows=1
     )
 
