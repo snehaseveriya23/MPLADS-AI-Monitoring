@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import indiaMap from '@svg-maps/india'
 
 const API_BASE = 'https://mplads-ai-monitoring-g3m7.onrender.com'  // TODO: Change to the actual API base URL 
 
@@ -46,6 +47,7 @@ function Dashboard() {
   const [priorityAlerts, setPriorityAlerts] = useState({ total: 0, alerts: [] })
 
   const [riskIndicators, setRiskIndicators] = useState([])
+  const [hoveredMapState, setHoveredMapState] = useState(null)
 
   const [searchId, setSearchId] = useState('')
   const [investigation, setInvestigation] = useState(null)
@@ -473,65 +475,89 @@ function Dashboard() {
     )
   }
 
-  const renderRankedBarChart = (
-    rows,
-    { labelKey, valueKey, color = '#ef4444' }
-  ) => {
-    const chartWidth = 640
-    const rowHeight = 34
-    const labelWidth = 148
-    const chartHeight = Math.max(rowHeight * Math.max(rows.length, 1), rowHeight)
-    const max = Math.max(1, ...rows.map((row) => Number(row[valueKey]) || 0))
-    const barMaxWidth = chartWidth - labelWidth - 56
+  const normalizeStateName = (name) => (
+    String(name || '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim()
+  )
+
+  const renderIndiaMap = () => {
+    const stateRiskByName = new Map(
+      stateRisk.map((item) => [
+        normalizeStateName(item.state),
+        Number(item.works) || 0,
+      ])
+    )
+
+    const selectedStateName = normalizeStateName(selectedState)
+    const maxWorks = Math.max(
+      1,
+      ...stateRisk.map((item) => Number(item.works) || 0)
+    )
+
+    const getMapStateName = (name) => (
+      name === 'Andaman and Nicobar Islands'
+        ? 'Andaman And Nicobar Islands'
+        : name
+    )
 
     return (
-      <svg
-        className="chart-svg chart-svg--ranked"
-        viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-        role="img"
-        aria-label="Ranked bar chart"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        {rows.map((row, index) => {
-          const value = Number(row[valueKey]) || 0
-          const barWidth = (value / max) * barMaxWidth
-          const y = index * rowHeight
+      <div className="india-map-wrapper">
+        <svg
+          className="india-map"
+          viewBox={indiaMap.viewBox}
+          role="img"
+          aria-label="India map showing high and critical risk works by state"
+        >
+          {indiaMap.locations.map((location) => {
+            const apiStateName = getMapStateName(location.name)
+            const normalizedName = normalizeStateName(apiStateName)
+            const works = stateRiskByName.get(normalizedName)
+            const isSelected = selectedStateName === normalizedName
+            const hasSelectedState = Boolean(selectedStateName)
+            const fill = works
+              ? `rgba(239, 68, 68, ${0.32 + (works / maxWorks) * 0.58})`
+              : '#12263a'
 
-          return (
-            <g key={String(row[labelKey])}>
-              <text
-                x={labelWidth - 12}
-                y={y + rowHeight / 2 + 4}
-                textAnchor="end"
-                className="chart-bar-label chart-bar-label--ranked"
-              >
-                {row[labelKey]}
-              </text>
+            return (
+              <path
+                key={location.id}
+                d={location.path}
+                className={`india-map-state${
+                  isSelected ? ' india-map-state--selected' : ''
+                }${hasSelectedState && !isSelected ? ' india-map-state--muted' : ''}`}
+                fill={fill}
+                onMouseEnter={() => setHoveredMapState({
+                  name: apiStateName,
+                  works,
+                })}
+                onMouseLeave={() => setHoveredMapState(null)}
+                onFocus={() => setHoveredMapState({
+                  name: apiStateName,
+                  works,
+                })}
+                onBlur={() => setHoveredMapState(null)}
+                tabIndex={0}
+                role="img"
+                aria-label={apiStateName}
+              />
+            )
+          })}
+        </svg>
 
-              <rect
-                x={labelWidth}
-                y={y + 7}
-                width={Math.max(barWidth, value > 0 ? 2 : 0)}
-                height={rowHeight - 14}
-                rx="4"
-                fill={color}
-              >
-                <title>
-                  {`${row[labelKey]}: ${formatNumber(value)}`}
-                </title>
-              </rect>
-
-              <text
-                x={labelWidth + Math.max(barWidth, value > 0 ? 2 : 0) + 10}
-                y={y + rowHeight / 2 + 4}
-                className="chart-bar-value chart-bar-value--ranked"
-              >
-                {formatNumber(value)}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
+        {hoveredMapState && (
+          <div className="india-map-tooltip" role="status">
+            <strong>{hoveredMapState.name}</strong>
+            {hoveredMapState.works !== undefined && (
+              <span>
+                High/Critical risk works:{' '}
+                {formatNumber(hoveredMapState.works)}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     )
   }
 
@@ -556,28 +582,171 @@ function Dashboard() {
         }
 
         .inner-page.dashboard-view .inner-page__panel {
-          width: min(1400px, 96%);
+          width: min(1200px, 94%);
           margin: 0 auto;
           display: flex;
           flex-direction: column;
           flex: 1;
-          padding-bottom: 64px;
+          padding: 30px 0 44px;
+        }
+
+        .inner-page.dashboard-view > .inner-page__panel > h1 {
+          font-size: clamp(1.65rem, 3vw, 2.25rem);
+          line-height: 1.15;
+        }
+
+        .inner-page.dashboard-view > .inner-page__panel > .section-kicker {
+          margin-bottom: 7px;
         }
 
         .inner-page.dashboard-view .dashboard-kpis {
-          margin-bottom: 28px;
+          margin-top: 24px;
+          margin-bottom: 22px;
         }
 
         .inner-page.dashboard-view .dashboard-filters {
-          margin-bottom: 32px;
+          margin-top: 18px;
+          margin-bottom: 22px;
+          gap: 14px;
         }
 
         .inner-page.dashboard-view .dashboard-section {
-          margin-bottom: 36px;
+          margin-top: 24px;
+          margin-bottom: 24px;
+          padding: 20px;
+          border-radius: 14px;
         }
 
         .inner-page.dashboard-view .dashboard-section:last-of-type {
           margin-bottom: 0;
+        }
+
+        .inner-page.dashboard-view .dashboard-kpis > div {
+          min-height: 96px;
+          padding: 17px 18px;
+          border-radius: 12px;
+          gap: 7px;
+          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+        }
+
+        .inner-page.dashboard-view .dashboard-kpis strong {
+          font-size: 1.7rem;
+        }
+
+        .inner-page.dashboard-view .dashboard-filter select {
+          padding: 10px 12px;
+          border-radius: 8px;
+          font-size: 0.9rem;
+        }
+
+        .inner-page.dashboard-view .dashboard-filter-result {
+          margin-top: 12px;
+          font-size: 0.85rem;
+        }
+
+        .inner-page.dashboard-view .risk-distribution {
+          margin-top: 24px;
+          padding: 22px;
+          border-radius: 14px;
+        }
+
+        .inner-page.dashboard-view .risk-distribution__header {
+          margin-bottom: 20px;
+        }
+
+        .inner-page.dashboard-view .risk-distribution__content {
+          grid-template-columns: 230px 1fr;
+          gap: 28px;
+        }
+
+        .inner-page.dashboard-view .risk-donut-wrapper,
+        .inner-page.dashboard-view .risk-donut-svg {
+          width: 200px;
+          height: 200px;
+        }
+
+        .inner-page.dashboard-view .risk-legend {
+          gap: 8px;
+        }
+
+        .inner-page.dashboard-view .risk-legend__item {
+          min-height: 50px;
+          padding: 0 14px;
+        }
+
+        .inner-page.dashboard-view .chart-card {
+          padding: 14px 12px 6px;
+          border-radius: 11px;
+        }
+
+        .inner-page.dashboard-view .india-map-wrapper {
+          position: relative;
+          width: min(100%, 620px);
+          margin: 0 auto;
+          padding: 4px 0;
+        }
+
+        .inner-page.dashboard-view .india-map {
+          display: block;
+          width: 100%;
+          max-height: 390px;
+          fill: #12263a;
+        }
+
+        .inner-page.dashboard-view .india-map-state {
+          cursor: pointer;
+          stroke: #5d7892;
+          stroke-width: 0.8;
+          vector-effect: non-scaling-stroke;
+          transition: opacity 0.15s ease, stroke 0.15s ease;
+        }
+
+        .inner-page.dashboard-view .india-map-state:hover,
+        .inner-page.dashboard-view .india-map-state:focus {
+          stroke: #dceeff;
+          stroke-width: 1.5;
+          outline: none;
+        }
+
+        .inner-page.dashboard-view .india-map-state--selected {
+          stroke: #f4f7fb;
+          stroke-width: 2;
+        }
+
+        .inner-page.dashboard-view .india-map-state--muted {
+          opacity: 0.38;
+        }
+
+        .inner-page.dashboard-view .india-map-tooltip {
+          position: absolute;
+          top: 14px;
+          right: 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          max-width: 220px;
+          padding: 9px 11px;
+          color: #dce8f2;
+          background: rgba(8, 18, 34, 0.96);
+          border: 1px solid #31516d;
+          border-radius: 8px;
+          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+          font-size: 11px;
+          pointer-events: none;
+        }
+
+        .inner-page.dashboard-view .india-map-tooltip span {
+          color: #91a8bd;
+        }
+
+        .inner-page.dashboard-view .dashboard-section h2 {
+          margin: 0 0 12px;
+          font-size: 1.2rem;
+          line-height: 1.25;
+        }
+
+        .inner-page.dashboard-view .dashboard-section > .section-kicker {
+          margin-bottom: 6px;
         }
 
         .inner-page.dashboard-view .dashboard-table-wrap {
@@ -588,12 +757,35 @@ function Dashboard() {
         @media (max-width: 900px) {
           .inner-page.dashboard-view .inner-page__panel {
             width: 100%;
+            padding-left: 24px;
+            padding-right: 24px;
+          }
+
+          .inner-page.dashboard-view .risk-distribution__content {
+            grid-template-columns: 1fr;
+          }
+
+          .inner-page.dashboard-view .risk-donut-wrapper {
+            margin-bottom: 0;
           }
         }
 
         @media (max-width: 700px) {
           .inner-page.dashboard-view {
             min-height: auto;
+          }
+
+          .inner-page.dashboard-view .inner-page__panel {
+            padding: 24px 16px 36px;
+          }
+
+          .inner-page.dashboard-view .risk-distribution,
+          .inner-page.dashboard-view .dashboard-section {
+            padding: 18px;
+          }
+
+          .inner-page.dashboard-view .india-map {
+            max-height: 330px;
           }
 
           .inner-page.dashboard-view .dashboard-table-wrap {
@@ -617,8 +809,8 @@ function Dashboard() {
         .inner-page.dashboard-view .chart-card {
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 14px;
-          padding: 20px 16px 8px;
+          border-radius: 11px;
+          padding: 14px 12px 6px;
         }
 
         .inner-page.dashboard-view .chart-svg {
@@ -1034,6 +1226,7 @@ function Dashboard() {
                   renderColumnChart(expenditureUtilization, {
                     labelKey: 'range',
                     valueKey: 'works',
+                    height: 220,
                     colorFn: (item) =>
                       UTILIZATION_COLORS[item.range] || '#3b82f6',
                   })
@@ -1047,15 +1240,7 @@ function Dashboard() {
               <p className="section-kicker">Geography</p>
               <h2>State-wise High/Critical Risk Works</h2>
               <div className="chart-card">
-                {stateRisk.length > 0 ? (
-                  renderRankedBarChart(stateRisk, {
-                    labelKey: 'state',
-                    valueKey: 'works',
-                    color: '#ef4444',
-                  })
-                ) : (
-                  <p className="chart-empty">No high/critical risk works for the current filters.</p>
-                )}
+                {renderIndiaMap()}
               </div>
             </section>
 
@@ -1071,6 +1256,7 @@ function Dashboard() {
                     {
                       labelKey: 'indicator',
                       valueKey: 'works',
+                      height: 220,
                       colorFn: () => '#f97316',
                     }
                   )
