@@ -1,0 +1,66 @@
+:root {
+  --navy: #06111f;
+  --navy-deep: #040b16;
+  --navy-glass: rgba(8, 18, 34, 0.72);
+  --navy-glass-strong: rgba(8, 18, 34, 0.92);
+  --blue: #4ea3ff;
+  --blue-strong: #2f8fff;
+  --blue-soft: rgba(78, 163, 255, 0.16);
+  --gold: #d4b36a;
+  --saffron: #ff9933;
+  --india-green: #138808;
+  --text: #eef3fb;
+  --text-muted: rgba(238, 243, 251, 0.78);
+  --white: #ffffff;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --display: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--text);
+  background: var(--navy-deep);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+a {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
