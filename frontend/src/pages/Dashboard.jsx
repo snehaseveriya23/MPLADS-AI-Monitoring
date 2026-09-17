@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-const API_BASE = 'http://127.0.0.1:8001'  // TODO: Change to the actual API base URL 
+const API_BASE = 'https://mplads-ai-monitoring-g3m7.onrender.com'  // TODO: Change to the actual API base URL 
 
 const RISK_CONFIG = [
   {

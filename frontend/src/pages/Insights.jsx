@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const API_BASE = 'http://127.0.0.1:8001';
+const API_BASE = 'https://mplads-ai-monitoring-g3m7.onrender.com';
 
 // ---------------------------------------------------------
 // Helpers
