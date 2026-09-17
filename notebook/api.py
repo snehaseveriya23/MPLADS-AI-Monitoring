@@ -196,19 +196,38 @@ def _attach_independent_flags(data):
 
 
 def prepare_dashboard_data():
-    """Run the MPLADS pipeline once per process and reuse the DataFrame."""
+    """Load the precomputed MPLADS risk dataset and reuse it."""
     global _cached_data
 
     if _cached_data is not None:
         return _cached_data
 
     try:
-        data = run_mplads_pipeline()
+        data = pd.read_csv("MPLADS_final_risk_dataset.csv")
 
         if data is None or data.empty:
-            raise ValueError("MPLADS pipeline returned no data.")
+            raise ValueError("MPLADS final risk dataset is empty.")
+
+        # Create progress for the frontend/API
+        if "progress" not in data.columns:
+            if "Completion Date" in data.columns:
+                data["progress"] = data["Completion Date"].notna().map({
+                    True: "Completed",
+                    False: "In Progress"
+                })
+            elif "is_completed" in data.columns:
+                data["progress"] = data["is_completed"].map({
+                    1: "Completed",
+                    0: "In Progress"
+                }).fillna("In Progress")
+            else:
+                data["progress"] = "In Progress"
 
         _cached_data = _attach_independent_flags(data)
+
+        print("Precomputed MPLADS dataset loaded.")
+        print("Dashboard shape:", _cached_data.shape)
+
         return _cached_data
 
     except HTTPException:
@@ -216,7 +235,7 @@ def prepare_dashboard_data():
     except Exception as error:
         raise HTTPException(
             status_code=500,
-            detail=f"MPLADS pipeline error: {str(error)}"
+            detail=f"MPLADS dataset loading error: {str(error)}"
         )
 
 
