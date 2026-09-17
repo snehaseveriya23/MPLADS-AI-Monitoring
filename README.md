@@ -1,100 +1,157 @@
-# MPLADS AI Monitoring
+# MPLADS AI MONITOR
 
-AI-powered system for detecting anomalies, identifying project risks, and monitoring MPLADS works.
+**AI-Powered Monitoring and Risk Intelligence for MPLADS**
+
+An AI-powered work-level monitoring system developed for **Smart India Hackathon 2026 – Problem Statement SIH26102**.
+
+The system integrates MPLADS sanctioned works, completed works, and expenditure data to identify unusual patterns, calculate risk indicators, classify works by risk level, and prioritize works requiring further verification.
 
 ## Project Overview
 
-This project provides a work-level monitoring system for MPLADS works by integrating sanctioned works, completed works, and expenditure data.
+MPLADS AI MONITOR combines:
 
-The system combines rule-based risk indicators with Isolation Forest-based anomaly detection to identify unusual work patterns and prioritize works requiring further investigation.
+- Work-level data integration
+- Expenditure and project monitoring
+- Isolation Forest-based anomaly detection
+- Rule-based risk indicators
+- Risk scoring and classification
+- Priority alerts
+- Work-level investigation support
+- Actionable investigation recommendations
+
+The system is designed to support **Members of Parliament and government authorities** in identifying works that may require closer review.
+
+> The system identifies risk and anomaly signals for verification. It does not establish fraud or wrongdoing.
 
 ## Key Features
 
 - Work-level integration of MPLADS datasets
 - Expenditure utilization analysis
 - Isolation Forest-based anomaly detection
-- Rule-based risk scoring
+- Rule-based risk assessment
 - Low, Medium, High and Critical risk classification
-- Priority alerts for high-risk works
+- Priority Alerts
 - State-wise risk analysis
 - Risk indicator breakdown
 - Work ID-based investigation
-- Interactive Streamlit dashboard
+- Top priority investigation works
+- Work-specific investigation recommendations
+- Field verification guidance
+- Interactive monitoring dashboard
+- Filtering by State, Risk Level, Work Category, Alert Type and Constituency
 
-## Technology Stack
+## Technical Approach
 
-- Python
-- Pandas
-- Scikit-learn
-- Streamlit
-- Jupyter Notebook
+### 1. Data Collection
 
-## Dashboard
-
-The application provides:
-
-- Risk distribution
-- Expenditure utilization
-- State-wise High/Critical risk analysis
-- Risk indicator breakdown
-- Top risky works
-- Priority alerts
-- State and risk-level filters
-- Individual work investigation
-
-## Anomaly Detection
-
-Isolation Forest is used as an unsupervised anomaly detection technique to identify unusual work-level patterns.
-
-Detected anomalies should be treated as **potential anomalies requiring investigation**, and not as confirmed cases of fraud.
-
-## Dataset
-
-The project uses MPLADS data containing:
+MPLADS datasets used:
 
 - Works Sanctioned
 - Works Completed
-- Expenditure data
+- Expenditure on Completed and On-going Works
 
-The datasets are integrated at the **Work ID level** for analysis.
+### 2. Data Processing & Integration
 
-## Project Structure
+The datasets are cleaned, normalized and integrated using **Work ID**.
+
+### 3. Feature Engineering
+
+The system calculates indicators including:
+
+- Expenditure Ratio
+- Project Duration
+- Sanction Delay
+- Payment Indicators
+- Cost vs Category Average
+
+### 4. Anomaly Detection
+
+**Isolation Forest** is used as an unsupervised anomaly detection method to identify unusual work-level patterns.
+
+### 5. Rule-Based Risk Assessment
+
+The system evaluates indicators such as:
+
+- High Cost
+- Long Duration
+- Long Sanction Delay
+- High Expenditure
+- Late First Payment
+- Over Expenditure
+
+### 6. Risk Classification
+
+Works are classified into:
+
+- Low Risk
+- Medium Risk
+- High Risk
+- Critical Risk
+
+Priority Alerts are generated when an AI anomaly is combined with a sufficiently high risk score.
+
+### 7. Investigation Support
+
+The Insights workspace prioritizes works requiring attention and provides:
+
+- Triggered risk indicators
+- Financial and project details
+- Reason for attention
+- Recommended review actions
+- Field verification checklist
+
+## System Architecture
 
 ```text
-MPLADS-AI-Monitoring/
-│
-├── app.py
-├── requirements.txt
-├── MPLADS_dashboard_data.csv
-├── SIH26102_ds.ipynb
-└── README.md
-```
+MPLADS Data
+     │
+     ▼
+Data Cleaning & Integration
+     │
+     ▼
+Feature Engineering
+     │
+     ├───────────────┐
+     ▼               ▼
+Isolation Forest   Rule-Based Risk Indicators
+     │               │
+     └───────┬───────┘
+             ▼
+      Risk Scoring &
+      Classification
+             │
+             ▼
+       FastAPI Backend
+             │
+             ▼
+       React Frontend
+             │
+       ┌─────┴─────┐
+       ▼           ▼
+   Dashboard    Insights
+## Technology Stack
 
-## Run Locally
+### Frontend
 
-Install the required dependencies:
+- React
+- Vite
+- JavaScript
+- CSS
 
-```bash
-pip install -r requirements.txt
-```
+### Backend
 
-Run the Streamlit application:
+- Python
+- FastAPI
+- Pandas
+- NumPy
+- Joblib
+- Scikit-learn
 
-```bash
-streamlit run app.py
-```
+### Data Science
 
-## Live Application
-
-[Open the MPLADS AI Monitoring Dashboard](https://mplads-ai-monitoring-prototype.lovable.app/)
-
-## Limitations
-
-- The system does not use verified fraud labels.
-- AI anomalies are not confirmed fraud cases.
-- Results depend on the quality and completeness of the available data.
-- The current application works with the available dataset snapshot and is not connected to a real-time government data feed.
-
-## Team
-
-**The DataMiners**
+- Jupyter Notebook
+- Pandas
+- NumPy
+- Isolation Forest
+- Feature Engineering
+- Rule-Based Risk Scoring
