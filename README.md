@@ -129,6 +129,8 @@ Isolation Forest   Rule-Based Risk Indicators
        ┌─────┴─────┐
        ▼           ▼
    Dashboard    Insights
+```
+
 ## Technology Stack
 
 ### Frontend
