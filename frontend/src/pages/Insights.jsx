@@ -539,8 +539,61 @@ const ActionButton = ({
 
 const Insights = () => {
   const [works, setWorks] = useState([]);
+  const [filterOptions, setFilterOptions] = useState({
+    states: [],
+    constituencies: [],
+    riskLevels: [],
+    alertTypes: [],
+  });
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedConstituency, setSelectedConstituency] = useState('');
+  const [selectedRisk, setSelectedRisk] = useState('');
+  const [selectedAlertType, setSelectedAlertType] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    const loadFilterOptions = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE}/api/insights/filters`
+        );
+
+        if (!active) return;
+
+        setFilterOptions({
+          states: Array.isArray(response.data?.states)
+            ? response.data.states
+            : [],
+          constituencies: Array.isArray(response.data?.constituencies)
+            ? response.data.constituencies
+            : [],
+          riskLevels: Array.isArray(response.data?.riskLevels)
+            ? response.data.riskLevels
+            : [],
+          alertTypes: Array.isArray(response.data?.alertTypes)
+            ? response.data.alertTypes
+            : [],
+        });
+      } catch (err) {
+        if (!active) return;
+
+        setError(
+          err?.response?.data?.detail ||
+            err?.message ||
+            'Unable to load insights filters.'
+        );
+      }
+    };
+
+    loadFilterOptions();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -550,8 +603,16 @@ const Insights = () => {
         setLoading(true);
         setError('');
 
+        const params = {};
+
+        if (selectedState) params.state = selectedState;
+        if (selectedConstituency) params.constituency = selectedConstituency;
+        if (selectedRisk) params.risk = selectedRisk;
+        if (selectedAlertType) params.alert_type = selectedAlertType;
+
         const response = await axios.get(
-          `${API_BASE}/api/insights`
+          `${API_BASE}/api/insights`,
+          { params }
         );
 
         if (!active) return;
@@ -583,7 +644,12 @@ const Insights = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [
+    selectedState,
+    selectedConstituency,
+    selectedRisk,
+    selectedAlertType,
+  ]);
 
   return (
     <>
@@ -662,6 +728,60 @@ const Insights = () => {
           white-space: nowrap;
         }
 
+        .insights-filters {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 14px;
+          margin-bottom: 38px;
+          padding: 18px;
+          background: rgba(10, 20, 34, 0.72);
+          border: 1px solid #1d3045;
+          border-radius: 14px;
+          box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        .insights-filter {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .insights-filter label {
+          color: #8093a8;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.13em;
+          text-transform: uppercase;
+        }
+
+        .insights-filter select {
+          width: 100%;
+          min-width: 0;
+          padding: 11px 12px;
+          color: #dce8f2;
+          background: #0b1727;
+          border: 1px solid #1b3046;
+          border-radius: 9px;
+          font: inherit;
+          font-size: 12px;
+          outline: none;
+          cursor: pointer;
+        }
+
+        .insights-filter select:hover {
+          border-color: #294b68;
+        }
+
+        .insights-filter select:focus {
+          border-color: #3195d5;
+          box-shadow: 0 0 0 3px rgba(49, 149, 213, 0.12);
+        }
+
+        .insights-filter select option {
+          color: #dce8f2;
+          background: #0b1727;
+        }
+
         @media (max-width: 700px) {
           .insights-page {
             padding: 36px 16px 60px;
@@ -670,6 +790,16 @@ const Insights = () => {
           .priority-header {
             align-items: flex-start;
             flex-direction: column;
+          }
+
+          .insights-filters {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
+        @media (max-width: 460px) {
+          .insights-filters {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
@@ -694,6 +824,64 @@ const Insights = () => {
               recommended verification actions for public works.
             </p>
           </header>
+
+          <div className="insights-filters">
+            <div className="insights-filter">
+              <label htmlFor="insights-state">State</label>
+              <select
+                id="insights-state"
+                value={selectedState}
+                onChange={(event) => setSelectedState(event.target.value)}
+              >
+                <option value="">All</option>
+                {filterOptions.states.map((state) => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="insights-filter">
+              <label htmlFor="insights-constituency">Constituency</label>
+              <select
+                id="insights-constituency"
+                value={selectedConstituency}
+                onChange={(event) => setSelectedConstituency(event.target.value)}
+              >
+                <option value="">All</option>
+                {filterOptions.constituencies.map((constituency) => (
+                  <option key={constituency} value={constituency}>{constituency}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="insights-filter">
+              <label htmlFor="insights-risk">Risk Level</label>
+              <select
+                id="insights-risk"
+                value={selectedRisk}
+                onChange={(event) => setSelectedRisk(event.target.value)}
+              >
+                <option value="">All</option>
+                {filterOptions.riskLevels.map((risk) => (
+                  <option key={risk} value={risk}>{risk}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="insights-filter">
+              <label htmlFor="insights-alert-type">Alert Type</label>
+              <select
+                id="insights-alert-type"
+                value={selectedAlertType}
+                onChange={(event) => setSelectedAlertType(event.target.value)}
+              >
+                <option value="">All</option>
+                {filterOptions.alertTypes.map((alertType) => (
+                  <option key={alertType} value={alertType}>{alertType}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           {/* Priority header */}
           <div className="priority-header">
